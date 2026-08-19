@@ -1,0 +1,480 @@
+import re
+import json
+import os
+
+file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'js', 'products.js')
+
+with open(file_path, 'r', encoding='utf-8') as f:
+    content = f.read()
+
+print(f"Read {len(content)} bytes from {file_path}")
+
+# ============================================================
+# FIX 1: Missing opening '<' before 'strong>' at description starts
+# ============================================================
+count1 = content.count("description: 'strong>")
+content = content.replace("description: 'strong>", "description: '<strong>")
+print(f"Fix 1: Fixed {count1} missing <strong> opening tags")
+
+# ============================================================
+# FIX 2: Fix broken HTML at end of descriptions
+# ============================================================
+fix2_count = 0
+# Fix </strong' at end of radiateur-turbo (missing >)
+if "</strong'" in content:
+    content = content.replace("</strong'", "</strong>'")
+    # But that creates </strong>' which we actually want as </strong>'
+    # Actually we need </strong>' - check the actual pattern
+    pass
+
+# Fix <strong></strong' (vase-deau) - the last <strong></ is broken
+# Pattern: <strong></strong  at end missing >
+old = "<strong></strong'"
+if old in content:
+    # Remove the broken empty strong tag entirely
+    content = content.replace(old, "'")
+    fix2_count += 1
+
+# Fix <strong><' pattern  
+old2 = "<strong><'"
+if old2 in content:
+    content = content.replace(old2, "'")
+    fix2_count += 1
+
+print(f"Fix 2: Fixed {fix2_count} broken HTML end tags")
+
+# ============================================================
+# FIX 3: Fix missing spaces (systemic from HTML scraping)
+# ============================================================
+spacing_fixes = [
+    # AAPT brand merges
+    ("AAPTest ", "AAPT est "),
+    ("AAPTest\n", "AAPT est\n"),
+    ("chezAAPT", "chez AAPT"),
+    ("ChezAAPT", "Chez AAPT"),
+    ("choisissantAAPT", "choisissant AAPT"),
+    (",AAPT", ", AAPT"),
+    (".AAPT", ". AAPT"),
+    # Common word merges from stripped bold tags
+    ("enpare-chocs", "en pare-chocs"),
+    ("depare-chocs", "de pare-chocs"),
+    ("desmarques", "des marques"),
+    ("lesmarques", "les marques"),
+    ("desplus", "des plus"),
+    ("lesplus", "les plus"),
+    ("despièces", "des pièces"),
+    ("lespièces", "les pièces"),
+    ("depièces", "de pièces"),
+    ("demarques", "de marques"),
+    ("automobilesen", "automobiles en"),
+    ("fiabilitésur", "fiabilité sur"),
+    ("facileet", "facile et"),
+    ("rapidesur", "rapide sur"),
+    ("fiableset", "fiables et"),
+    ("reconnuessur", "reconnues sur"),
+    ("reconnuesen", "reconnues en"),
+    ("reconnuesdans", "reconnues dans"),
+    ("reconnuespour", "reconnues pour"),
+    ("populairesen", "populaires en"),
+    ("populaireset", "populaires et"),
+    ("populairesdisponibles", "populaires disponibles"),
+    ("résistanceaux", "résistance aux"),
+    ("durabilitéet", "durabilité et"),
+    ("Durabilitéet", "Durabilité et"),
+    ("completcouvrant", "complet couvrant"),
+    ("completde", "complet de"),
+    ("réactifet", "réactif et"),
+    ("compétitifset", "compétitifs et"),
+    ("compétitifspour", "compétitifs pour"),
+    ("compétitifsadaptés", "compétitifs adaptés"),
+    ("certifiéeset", "certifiées et"),
+    ("certifiéspour", "certifiés pour"),
+    ("disponiblepour", "disponible pour"),
+    ("permanentet", "permanent et"),
+    ("personnaliséspour", "personnalisés pour"),
+    ("personnaliséspar", "personnalisés par"),
+    ("techniqueet", "technique et"),
+    ("confiancepour", "confiance pour"),
+    ("confiancedes", "confiance des"),
+    ("confiancedans", "confiance dans"),
+    ("confiancede", "confiance de"),
+    ("dédiéet", "dédié et"),
+    ("expertisedans", "expertise dans"),
+    ("expertisede", "expertise de"),
+    ("reconnuedans", "reconnue dans"),
+    ("reconnueet", "reconnue et"),
+    ("reconnuecouvrant", "reconnue couvrant"),
+    ("devolants", "de volants"),
+    ("deradiateurs", "de radiateurs"),
+    ("destatorsde", "de stators de"),
+    ("debobines", "de bobines"),
+    ("depompes", "de pompes"),
+    ("dekits", "de kits"),
+    ("deculasses", "de culasses"),
+    ("deVannes", "de Vannes"),
+    ("dechemises", "de chemises"),
+    ("dejeux", "de jeux"),
+    ("decardans", "de cardans"),
+    ("decrémaillères", "de crémaillères"),
+    ("detriangles", "de triangles"),
+    ("decâbles", "de câbles"),
+    ("deplateaux", "de plateaux"),
+    ("dedisques", "de disques"),
+    ("demâchoires", "de mâchoires"),
+    ("detambours", "de tambours"),
+    ("demaîtres", "de maîtres"),
+    ("deplaquettes", "de plaquettes"),
+    ("decompresseurs", "de compresseurs"),
+    ("decondenseurs", "de condenseurs"),
+    ("dedurites", "de durites"),
+    ("devases", "de vases"),
+    ("defiltres", "de filtres"),
+    ("deporte", "de porte"),
+    ("derétroviseurs", "de rétroviseurs"),
+    ("devitres", "de vitres"),
+    ("defeux", "de feux"),
+    ("deBendix", "de Bendix"),
+    ("derotors", "de rotors"),
+    ("debras", "de bras"),
+    ("lerefroidissement", "le refroidissement"),
+    ("lefiltre", "le filtre"),
+    ("Lefiltre", "Le filtre"),
+    ("lethermostat", "le thermostat"),
+    ("lecylindre", "le cylindre"),
+    ("Lecylindre", "Le cylindre"),
+    ("lebras", "le bras"),
+    ("Lebras", "Le bras"),
+    ("lerécepteur", "le récepteur"),
+    ("Lerécepteur", "Le récepteur"),
+    ("leBendix", "le Bendix"),
+    ("LeBendix", "Le Bendix"),
+    ("lestator", "le stator"),
+    ("Lestator", "Le stator"),
+    ("Ledisque", "Le disque"),
+    ("Lemécanisme", "Le mécanisme"),
+    ("Labutée", "La butée"),
+    ("Levase", "Le vase"),
+    ("Leradiateur", "Le radiateur"),
+    ("Lavanne", "La vanne"),
+    ("lavanne", "la vanne"),
+    ("leschemises", "les chemises"),
+    ("lesfeux", "les feux"),
+    ("Lesfeux", "Les feux"),
+    ("Nosfeux", "Nos feux"),
+    ("Nosphares", "Nos phares"),
+    ("nosphares", "nos phares"),
+    ("lesoptiques", "les optiques"),
+    ("Lesoptiques", "Les optiques"),
+    ("desoptiques", "des optiques"),
+    ("unelarge", "une large"),
+    ("Unelarge", "Une large"),
+    ("Uneperformance", "Une performance"),
+    ("uneperformance", "une performance"),
+    ("Unelongévité", "Une longévité"),
+    ("unelongévité", "une longévité"),
+    ("Uneconsommation", "Une consommation"),
+    ("uneconsommation", "une consommation"),
+    ("Uneréduction", "Une réduction"),
+    ("uneréduction", "une réduction"),
+    ("Unefiabilité", "Une fiabilité"),
+    ("unefiabilité", "une fiabilité"),
+    ("Unedurée", "Une durée"),
+    ("unedurée", "une durée"),
+    ("Unecompatibilité", "Une compatibilité"),
+    ("unecompatibilité", "une compatibilité"),
+    ("Unerésistance", "Une résistance"),
+    ("unerésistance", "une résistance"),
+    ("Uneinstallation", "Une installation"),
+    ("uneinstallation", "une installation"),
+    ("Unecombustion", "Une combustion"),
+    ("unecombustion", "une combustion"),
+    ("Unemeilleure", "Une meilleure"),
+    ("unemeilleure", "une meilleure"),
+    ("Uneexcellente", "Une excellente"),
+    ("uneexcellente", "une excellente"),
+    ("uneétanchéité", "une étanchéité"),
+    ("Unservice", "Un service"),
+    ("unservice", "un service"),
+    ("Unlarge", "Un large"),
+    ("unlarge", "un large"),
+    ("Unstock", "Un stock"),
+    ("unstock", "un stock"),
+    ("Unréseau", "Un réseau"),
+    ("unréseau", "un réseau"),
+    ("unconfort", "un confort"),
+    ("Unconfort", "Un confort"),
+    ("sécuriséepartout", "sécurisée partout"),
+    ("reconnuesà", "reconnues à"),
+    ("certifiéesqui", "certifiées qui"),
+    ("larésistance", "la résistance"),
+    ("laperformance", "la performance"),
+    ("lasécurité", "la sécurité"),
+    ("lapompe", "la pompe"),
+    ("lapièce", "la pièce"),
+    ("lameilleure", "la meilleure"),
+    ("laprécision", "la précision"),
+    ("ladistribution", "la distribution"),
+    ("lasatisfaction", "la satisfaction"),
+    ("lefeu", "le feu"),
+    ("lejeu", "le jeu"),
+    ("leporte", "le porte"),
+    ("Desprix", "Des prix"),
+    ("desprix", "des prix"),
+    ("disponibleet", "disponible et"),
+    ("assuréeavec", "assurée avec"),
+    ("garantieavec", "garantie avec"),
+    ("immédiategrâce", "immédiate grâce"),
+    ("professionnelpour", "professionnel pour"),
+    ("nationalrapide", "national rapide"),
+    ("expertet", "expert et"),
+    ("sontrigoureusement", "sont rigoureusement"),
+    ("estrigoureusement", "est rigoureusement"),
+    ("stockde", "stock de"),
+    ("meilleuresmarques", "meilleures marques"),
+    ("tousles", "tous les"),
+    ("l\\'alternateur", "l'alternateur"),
+    # Fix specific patterns with existing emojis
+    ("Large stockde", "Large stock de"),
+    ("completcouvrant", "complet couvrant"),
+    ("expertiseet", "expertise et"),
+    ("origineou", "origine ou"),
+    ("origineet", "origine et"),
+    ("originepour", "origine pour"),
+    # Product name merges
+    ("Chaqueporte", "Chaque porte"),
+    ("vendonstous", "vendons tous"),
+]
+
+fix3_count = 0
+for old, new in spacing_fixes:
+    c = content.count(old)
+    if c > 0:
+        content = content.replace(old, new)
+        fix3_count += c
+
+print(f"Fix 3: Fixed {fix3_count} missing spaces")
+
+# ============================================================
+# FIX 4: Fix awkward rebranding phrases
+# ============================================================
+rebranding_fixes = [
+    # "Expertise forts de notre expertise" → "Expertise reconnue"
+    ("Expertise forts de notre expertise", "Expertise reconnue"),
+    ("expertise forts de notre expertise", "expertise reconnue"),
+    # trailing taglines
+    ("AAPT – Votre spécialiste en pièces détachées automobiles en Tunisie forts de notre expertise.", 
+     "AAPT – Votre spécialiste en pièces détachées automobiles en Tunisie."),
+    ("AAPT – Votre expert en pièces détachées automobiles forts de notre expertise.",
+     "AAPT – Votre expert en pièces détachées automobiles en Tunisie."),
+    # mid-sentence redundancies
+    ("en Tunisie forts de notre expertise, nous", "en Tunisie, nous"),
+    ("en Tunisie forts de notre expertise nous", "en Tunisie, nous"),
+    ("automobiles forts de notre expertise, nous", "automobiles en Tunisie, nous"),
+    ("automobiles forts de notre expertise nous", "automobiles en Tunisie, nous"),
+    ("automobile forts de notre expertise, nous", "automobile en Tunisie, nous"),
+    ("automobile forts de notre expertise nous", "automobile en Tunisie, nous"),
+    ("freinage forts de notre expertise", "freinage en Tunisie"),
+    ("automobile forts de notre expertise", "automobile en Tunisie"),
+    ("en Tunisie forts de notre expertise", "en Tunisie"),
+    ("forts de notre expertise, AAPT", "AAPT"),
+    ("reconnue forts de notre expertise", "reconnue"),
+    ("Forts de notre expertise, AAPT", "AAPT"),
+    # Remaining standalone occurrences - carefully replace
+    ("Forts de notre expertise, ", ""),
+    # "Plus de notre expertise" patterns (from durite)
+    ("Plus de notre expertise dans", "Une expertise reconnue dans"),
+    ("Plus de notre expertise", "Une expertise reconnue"),
+    # "de une expertise reconnue" → "d'une expertise reconnue"
+    ("de une expertise reconnue", "d'une expertise reconnue"),
+    ("de une expertise", "d'une expertise"),
+    # "Depuis plus de plusieurs années" 
+    ("Depuisplus de plusieurs années", "Depuis plusieurs années"),
+    ("Depuis plus de plusieurs années", "Depuis plusieurs années"),
+    # "Expertise de plus de plusieurs années"
+    ("Expertise de plus de plusieurs années", "Expertise reconnue"),
+    ("expertise de plus de plusieurs années", "expertise reconnue"),
+    # "plus de plusieurs années" remaining
+    ("plus de plusieurs années", "plusieurs années d'expertise"),
+    ("Plus de plusieurs années", "Plusieurs années d'expertise"),
+    # "Notre expertise forts de notre expertise"
+    ("Notre expertise forts de notre expertise", "Notre expertise reconnue"),
+    # "Fort de une expertise reconnue"
+    ("Fort de une expertise reconnue", "Fort d'une expertise reconnue"),
+]
+
+fix4_count = 0
+for old, new in rebranding_fixes:
+    c = content.count(old)
+    if c > 0:
+        content = content.replace(old, new)
+        fix4_count += c
+
+# Now handle remaining "forts de notre expertise" that are in awkward positions
+remaining = content.count("forts de notre expertise")
+if remaining > 0:
+    # Replace remaining instances - these are typically at end of phrases
+    content = content.replace(" forts de notre expertise", "")
+    content = content.replace("forts de notre expertise", "")
+    fix4_count += remaining
+
+print(f"Fix 4: Fixed {fix4_count} awkward rebranding phrases")
+
+# ============================================================
+# FIX 5: Remove duplicated bullet content in descriptions
+# ============================================================
+def remove_duplicated_bullets(desc):
+    """Remove duplicated bullet content from descriptions.
+    
+    The pattern is: bullet list items appear twice - once with bullet markers
+    and once without. We keep only the bulleted version.
+    """
+    parts = desc.split('<br><br>')
+    clean_parts = []
+    i = 0
+    
+    while i < len(parts):
+        current = parts[i]
+        
+        # Check if current part contains bullet points
+        has_bullets = any(marker in current for marker in ['• ', '✅', '🔹'])
+        
+        if has_bullets:
+            clean_parts.append(current)
+            
+            # Extract bullet text items (without markers) for comparison
+            bullet_texts = []
+            bullet_lines = current.split('<br>')
+            for line in bullet_lines:
+                # Remove bullet markers
+                cleaned = line.strip()
+                for marker in ['• ', '✅', '✅ ', '🔹 ', '🔹']:
+                    if cleaned.startswith(marker):
+                        cleaned = cleaned[len(marker):]
+                        break
+                if cleaned and len(cleaned) > 5:
+                    bullet_texts.append(cleaned)
+            
+            # Skip following parts that are duplicates of bullet items
+            j = i + 1
+            while j < len(parts):
+                next_part = parts[j].strip()
+                
+                # Check if this part matches any bullet text
+                is_duplicate = False
+                for bt in bullet_texts:
+                    compare_len = min(25, len(bt), len(next_part))
+                    if compare_len > 5 and next_part[:compare_len] == bt[:compare_len]:
+                        is_duplicate = True
+                        break
+                
+                if is_duplicate:
+                    j += 1
+                else:
+                    break
+            
+            i = j
+        else:
+            clean_parts.append(current)
+            i += 1
+    
+    return '<br><br>'.join(clean_parts)
+
+# Apply to all descriptions
+fix5_count = 0
+def fix_description(match):
+    global fix5_count
+    desc = match.group(1)
+    if len(desc) > 0:
+        cleaned = remove_duplicated_bullets(desc)
+        if cleaned != desc:
+            fix5_count += 1
+        return "description: '" + cleaned + "'"
+    return match.group(0)
+
+content = re.sub(r"description: '([^']*)'", fix_description, content)
+print(f"Fix 5: Removed duplicated bullets from {fix5_count} descriptions")
+
+# ============================================================
+# FIX 6: Add descriptions for empty products
+# ============================================================
+empty_descriptions = {
+    'porte-et-capot': {
+        'description': "Chez AAPT, nous vous proposons une large gamme de <strong>portes et capots</strong> pour tous les modèles et marques populaires en Tunisie. Que vous recherchiez des pièces pour voitures particulières, utilitaires ou 4×4, nous avons la solution adaptée à vos besoins.<br><br><strong>Nos produits</strong><br>Nous distribuons uniquement des produits de haute qualité, provenant des marques les plus reconnues sur le marché. Nos portes et capots garantissent :<br><br>• Qualité d\\'origine et compatibilité parfaite avec votre véhicule<br>• Résistance aux chocs et aux intempéries<br>• Finition soignée pour une intégration esthétique optimale<br><br><strong>Pourquoi choisir AAPT ?</strong><br>• Large choix de marques et modèles pour tous types de véhicules.<br>• Prix compétitifs avec un excellent rapport qualité-prix.<br>• Service client expert pour vous aider à choisir la pièce adaptée.<br>• Livraison rapide sur tout le territoire tunisien.<br><br>AAPT – Votre partenaire pour toutes vos pièces de carrosserie en Tunisie.",
+        'products': '["Qualité d\'origine et compatibilité parfaite avec votre véhicule", "Résistance aux chocs et aux intempéries", "Finition soignée pour une intégration esthétique optimale", "Large choix de marques et modèles pour tous types de véhicules.", "Prix compétitifs avec un excellent rapport qualité-prix.", "Service client expert pour vous aider à choisir la pièce adaptée.", "Livraison rapide sur tout le territoire tunisien."]'
+    },
+    'demarreur': {
+        'description': "Chez AAPT, nous mettons à votre disposition une large gamme de <strong>démarreurs</strong> de haute qualité pour tous types de véhicules. Le démarreur est un composant essentiel qui permet de lancer le moteur de votre voiture. Un démarreur défectueux peut entraîner des difficultés de démarrage ou un arrêt complet du véhicule.<br><br><strong>Nos produits</strong><br>Nous distribuons les démarreurs des marques les plus populaires et fiables du marché tunisien, notamment : Bosch, Valeo, Denso, Magneti Marelli, Hella, et bien d\\'autres.<br><br><strong>Pourquoi choisir AAPT ?</strong><br>• Large stock disponible pour toutes les marques et modèles.<br>• Qualité certifiée – produits testés et garantis.<br>• Conseils techniques personnalisés par nos experts.<br>• Livraison rapide partout en Tunisie.<br>• Prix compétitifs et service après-vente professionnel.<br><br>📞 Contactez-nous dès aujourd\\'hui pour trouver le démarreur adapté à votre véhicule !",
+        'products': '["Large stock disponible pour toutes les marques et modèles.", "Qualité certifiée – produits testés et garantis.", "Conseils techniques personnalisés par nos experts.", "Livraison rapide partout en Tunisie.", "Prix compétitifs et service après-vente professionnel."]'
+    },
+    'sonde-lambda': {
+        'description': "Chez AAPT, nous vous proposons une large gamme de <strong>sondes lambda</strong> adaptées à tous les modèles et marques de véhicules populaires en Tunisie. La sonde lambda est un capteur essentiel du système d\\'échappement qui mesure la quantité d\\'oxygène dans les gaz d\\'échappement, permettant au moteur d\\'ajuster le mélange air-carburant pour une combustion optimale.<br><br><strong>Pourquoi choisir nos sondes lambda ?</strong><br>• Qualité certifiée : toutes nos sondes sont conformes aux standards des constructeurs automobiles.<br>• Compatibilité universelle : nous proposons des sondes pour toutes les marques présentes sur le marché tunisien.<br>• Performance optimale : régulation efficace du mélange air-carburant, réduisant les émissions polluantes.<br>• Disponibilité immédiate : grâce à notre stock important, livraison rapide.<br><br><strong>Pourquoi choisir AAPT ?</strong><br>• Expertise reconnue dans la distribution de pièces automobiles.<br>• Service client expert et conseils techniques personnalisés.<br>• Livraison rapide partout en Tunisie.<br><br>AAPT – Votre partenaire de confiance pour les pièces automobiles en Tunisie.",
+        'products': '["Qualité certifiée : toutes nos sondes sont conformes aux standards des constructeurs.", "Compatibilité universelle : sondes pour toutes les marques présentes en Tunisie.", "Performance optimale : régulation efficace du mélange air-carburant.", "Disponibilité immédiate : stock important pour une livraison rapide."]'
+    },
+    'roulement-de-roue': {
+        'description': "Chez AAPT, nous mettons à votre disposition une large gamme de <strong>roulements de roue</strong> de haute qualité pour tous types de véhicules. Le roulement de roue est un composant essentiel qui assure la rotation fluide et sans friction de vos roues, garantissant sécurité et confort de conduite.<br><br><strong>Nos produits</strong><br>Nous distribuons les roulements de roue des marques les plus reconnues : SKF, FAG, NTN, SNR, Timken, et bien d\\'autres.<br><br><strong>Pourquoi choisir AAPT ?</strong><br>• Large choix de marques reconnues pour tous types de véhicules.<br>• Compatibilité garantie avec les modèles les plus populaires en Tunisie.<br>• Qualité certifiée et produits d\\'origine ou équivalents OEM.<br>• Stock permanent et livraison rapide sur tout le territoire tunisien.<br>• Conseil technique et accompagnement personnalisé.<br><br>AAPT – Votre spécialiste en pièces de suspension et direction en Tunisie.",
+        'products': '["Large choix de marques reconnues pour tous types de véhicules.", "Compatibilité garantie avec les modèles les plus populaires en Tunisie.", "Qualité certifiée et produits d\'origine ou équivalents OEM.", "Stock permanent et livraison rapide en Tunisie.", "Conseil technique et accompagnement personnalisé."]'
+    },
+    'toc-amortisseur': {
+        'description': "Chez AAPT, nous proposons une large gamme de <strong>tocs d\\'amortisseur</strong> (coupelles d\\'amortisseur) pour tous types de véhicules. Le toc d\\'amortisseur joue un rôle essentiel dans le système de suspension, assurant la liaison entre l\\'amortisseur et la carrosserie tout en absorbant les vibrations.<br><br><strong>Pourquoi choisir nos tocs d\\'amortisseur ?</strong><br>• Qualité certifiée : pièces conformes aux standards des constructeurs automobiles.<br>• Compatibilité garantie : tocs adaptés à toutes les marques populaires en Tunisie.<br>• Durabilité et performance : conçus pour offrir une tenue de route optimale.<br>• Disponibilité immédiate : stock local et service rapide.<br><br><strong>Pourquoi choisir AAPT ?</strong><br>• Expertise reconnue dans la distribution de pièces de suspension.<br>• Large stock disponible pour une livraison rapide en Tunisie.<br>• Conseils techniques personnalisés pour choisir la pièce adaptée.<br><br>AAPT – Votre partenaire de confiance pour les pièces de suspension en Tunisie.",
+        'products': '["Qualité certifiée : pièces conformes aux standards des constructeurs.", "Compatibilité garantie : tocs adaptés à toutes les marques populaires.", "Durabilité et performance : tenue de route optimale.", "Disponibilité immédiate : stock local et service rapide."]'
+    },
+    'rotule-de-direction': {
+        'description': "Chez AAPT, nous mettons à votre disposition une large gamme de <strong>rotules de direction</strong> de haute qualité pour tous types de véhicules. La rotule de direction est un élément clé du système de direction, permettant le pivotement des roues et assurant une conduite précise et sécurisée.<br><br><strong>Nos produits</strong><br>Nous distribuons les rotules de direction des marques les plus réputées : TRW, Lemförder, MOOG, Delphi, Febi Bilstein, et bien d\\'autres.<br><br><strong>Pourquoi choisir AAPT ?</strong><br>• Large choix de références pour toutes les marques de véhicules populaires en Tunisie.<br>• Produits certifiés et conformes aux normes internationales.<br>• Prix compétitifs et stock permanent.<br>• Conseil technique professionnel et service client réactif.<br>• Livraison rapide partout en Tunisie.<br><br>AAPT – Votre spécialiste en pièces de direction en Tunisie.",
+        'products': '["Large choix de références pour toutes les marques populaires.", "Produits certifiés et conformes aux normes internationales.", "Prix compétitifs et stock permanent.", "Conseil technique professionnel et service client réactif.", "Livraison rapide partout en Tunisie."]'
+    },
+    'butee-embrayage': {
+        'description': "Chez AAPT, nous vous proposons une large gamme de <strong>butées d\\'embrayage</strong> pour tous les modèles et marques de véhicules populaires en Tunisie. La butée d\\'embrayage est un composant essentiel du système d\\'embrayage, assurant le débrayage fluide et la transmission de puissance optimale entre le moteur et la boîte de vitesses.<br><br><strong>Pourquoi choisir nos butées d\\'embrayage ?</strong><br>• Qualité garantie : des produits testés et approuvés pour leur fiabilité.<br>• Large choix : compatible avec toutes les marques et modèles de véhicules.<br>• Disponibilité immédiate : stock suffisant pour répondre rapidement à vos besoins.<br>• Expertise AAPT : une expertise reconnue dans le domaine des pièces automobiles.<br><br><strong>Nos marques disponibles</strong><br>Valeo, Luk, Sachs, Exedy, Aisin, et bien d\\'autres grandes marques reconnues.<br><br>AAPT – Votre partenaire de confiance pour les pièces d\\'embrayage en Tunisie.",
+        'products': '["Qualité garantie : des produits testés et approuvés.", "Large choix : compatible avec toutes les marques et modèles.", "Disponibilité immédiate : stock suffisant pour répondre rapidement.", "Expertise AAPT : expertise reconnue dans les pièces automobiles."]'
+    },
+    'filtre-habitacle': {
+        'description': "Chez AAPT, nous mettons à votre disposition une large gamme de <strong>filtres habitacle</strong> pour tous types de véhicules. Le filtre habitacle purifie l\\'air entrant dans l\\'habitacle de votre véhicule, retenant la poussière, le pollen et les particules nocives pour votre confort et votre santé.<br><br><strong>Pourquoi choisir nos filtres habitacle ?</strong><br>• Qualité certifiée : toutes nos pièces répondent aux normes les plus strictes de l\\'industrie automobile.<br>• Compatibilité universelle : filtres adaptés à toutes les marques automobiles du marché tunisien.<br>• Performance optimale : filtration efficace pour un air pur et sain dans votre véhicule.<br>• Disponibilité immédiate : grâce à notre stock important, livraison rapide.<br><br><strong>Nos marques disponibles</strong><br>Bosch, Mann Filter, Filtron, Mahle, Purflux, UFI, et bien d\\'autres.<br><br><strong>Pourquoi choisir AAPT ?</strong><br>• Expertise reconnue dans la distribution de pièces automobiles en Tunisie.<br>• Service client expert et conseils techniques personnalisés.<br>• Livraison rapide partout en Tunisie.<br><br>AAPT – Votre partenaire de confiance pour les systèmes de filtration en Tunisie.",
+        'products': '["Qualité certifiée : normes les plus strictes de l\'industrie automobile.", "Compatibilité universelle : filtres adaptés à toutes les marques.", "Performance optimale : filtration efficace pour un air pur et sain.", "Disponibilité immédiate : stock important pour livraison rapide."]'
+    }
+}
+
+fix6_count = 0
+for key, data in empty_descriptions.items():
+    # Find the product entry and replace empty description
+    pattern = f"'{key}'"
+    idx = content.find(pattern)
+    if idx >= 0:
+        # Find the description: '' pattern after this key
+        desc_search_start = idx
+        desc_empty = content.find("description: ''", desc_search_start)
+        if desc_empty >= 0 and desc_empty < desc_search_start + 200:
+            content = content[:desc_empty] + f"description: '{data['description']}'" + content[desc_empty + len("description: ''"):]
+            fix6_count += 1
+            
+            # Find and replace the empty products array
+            prod_empty = content.find("products: []", desc_empty)
+            if prod_empty >= 0 and prod_empty < desc_empty + len(data['description']) + 200:
+                content = content[:prod_empty] + f"products: {data['products']}" + content[prod_empty + len("products: []"):]
+
+print(f"Fix 6: Added {fix6_count} missing descriptions")
+
+# ============================================================
+# FIX 7: Final cleanup
+# ============================================================
+# Remove double spaces (but not in image paths)
+lines = content.split('\n')
+cleaned_lines = []
+for line in lines:
+    if 'img/' not in line and '//' not in line[:10]:
+        # Replace multiple spaces but preserve indentation
+        stripped = line.lstrip()
+        indent = line[:len(line) - len(stripped)]
+        while '  ' in stripped:
+            stripped = stripped.replace('  ', ' ')
+        line = indent + stripped
+    cleaned_lines.append(line)
+content = '\n'.join(cleaned_lines)
+
+print("Fix 7: Final cleanup complete")
+
+# Write the fixed file
+with open(file_path, 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print(f"\n✅ All fixes applied successfully!")
+print(f"File written: {file_path}")
+print(f"New size: {len(content)} bytes")
