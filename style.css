@@ -5061,3 +5061,149 @@ body.menu-open {
     padding: 0.75rem 0.5rem;
   }
 }
+/* ============================================
+   BRAND-MODEL SELECTION GRID
+   ============================================ */
+.brand-model-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: 4rem;
+}
+
+.brand-model-card {
+  background: var(--clr-bg-secondary);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+.brand-model-card:hover {
+  border-color: rgba(227, 6, 19, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.brand-model-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  background: none;
+  border: none;
+  color: var(--clr-text-primary);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  text-align: left;
+}
+
+.brand-model-header:hover {
+  color: var(--clr-red);
+}
+
+.brand-model-header span {
+  flex: 1;
+}
+
+.brand-model-header img {
+  filter: grayscale(1) brightness(0.7);
+  transition: filter var(--duration-fast);
+}
+
+.brand-model-card:hover .brand-model-header img,
+.brand-model-card.open .brand-model-header img {
+  filter: grayscale(0) brightness(1);
+}
+
+.brand-model-chevron {
+  color: var(--clr-text-muted);
+  transition: transform var(--duration-normal) var(--ease-smooth);
+  flex-shrink: 0;
+}
+
+.brand-model-card.open .brand-model-chevron {
+  transform: rotate(180deg);
+}
+
+.brand-model-card.open .brand-model-header {
+  color: var(--clr-red);
+  background: rgba(227, 6, 19, 0.05);
+}
+
+.brand-model-list {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--duration-slow) var(--ease-smooth),
+    padding var(--duration-slow) var(--ease-smooth);
+  list-style: none;
+  margin: 0;
+  padding: 0 1.5rem;
+}
+
+.brand-model-card.open .brand-model-list {
+  max-height: 500px;
+  padding: 0.5rem 1.5rem 1.25rem;
+}
+
+.brand-model-list li {
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.25rem;
+  border-radius: var(--radius-sm);
+  color: var(--clr-text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.brand-model-list li:hover {
+  background: rgba(227, 6, 19, 0.1);
+  color: var(--clr-red);
+  transform: translateX(4px);
+}
+
+/* ============================================
+   SELECTED MODEL DISPLAY
+   ============================================ */
+.selected-model-display {
+  margin-bottom: var(--space-xl);
+  text-align: center;
+  animation: umFadeIn 0.4s ease-out;
+}
+
+.selected-model-info {
+  background: var(--clr-bg-secondary);
+  border: 1px solid var(--clr-red);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: 0 8px 30px rgba(227, 6, 19, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.selected-model-info::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--clr-red-light), var(--clr-red), var(--clr-red-dark));
+}
+
+.selected-model-info h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.selected-model-subtitle {
+  color: var(--clr-text-secondary);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Update shop brand title for new state */
+.shop-brand-title {
+  margin-bottom: 1rem;
+}

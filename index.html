@@ -638,29 +638,108 @@
       <section class="section shop-section">
         <div class="container">
 
-          <!-- Brand Tabs -->
-          <div class="brand-tabs reveal" role="tablist" aria-label="Sélectionner une marque">
-            <button class="brand-tab active" data-brand="mg" role="tab" aria-selected="true"><img
-                src="img/logo/Mg_logo.svg" alt="" width="28" height="28"> MG</button>
-            <button class="brand-tab active" data-brand="haval" role="tab" aria-selected="false"><img
-                src="img/logo/Haval_2023_logo.svg" alt="" width="28" height="28"> HAVAL</button>
-            <button class="brand-tab active" data-brand="chery" role="tab" aria-selected="false"><img
-                src="img/logo/Chery_logo.svg" alt="" width="28" height="28"> CHERY</button>
-            <button class="brand-tab active" data-brand="geely" role="tab" aria-selected="false"><img
-                src="img/logo/Geely_Auto_2023.svg" alt="" width="28" height="28"> GEELY</button>
-            <button class="brand-tab active" data-brand="suzuki" role="tab" aria-selected="false"><img
-                src="img/logo/Suzuki_logo_2025.svg" alt="" width="28" height="28"> SUZUKI</button>
-            <button class="brand-tab active" data-brand="mahindra" role="tab" aria-selected="false"><img
-                src="img/logo/Mahindra-Logo.png" alt="" width="28" height="28"> MAHINDRA</button>
-            <button class="brand-tab active" data-brand="dongfeng" role="tab" aria-selected="false"><img
-                src="img/logo/Dongfeng_Motor_logo.svg" alt="" width="28" height="28"> DONGFENG</button>
-            <button class="brand-tab active" data-brand="kia" role="tab" aria-selected="false"><img
-                src="img/logo/KIA_logo3.svg" alt="" width="28" height="28"> KIA</button>
-            <button class="brand-tab active" data-brand="hyundai" role="tab" aria-selected="false"><img
-                src="img/logo/Hyundai_Motor_Company_logo.svg" alt="" width="28" height="28"> HYUNDAI</button>
+          <!-- Brand Model Selection Grid -->
+          <div class="brand-model-grid" id="brandModelGrid">
+            <div class="brand-model-card" data-brand="mg">
+              <button class="brand-model-header" onclick="toggleBrandModels(this)">
+                <img src="img/logo/Mg_logo.svg" alt="" width="28" height="28">
+                <span>MG</span>
+                <svg class="brand-model-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <ul class="brand-model-list">
+                <li onclick="selectModel('MG','MG 3')">MG 3</li>
+                <li onclick="selectModel('MG','MG 5')">MG 5</li>
+                <li onclick="selectModel('MG','MG 6')">MG 6</li>
+                <li onclick="selectModel('MG','MG ZS')">MG ZS</li>
+                <li onclick="selectModel('MG','MG HS')">MG HS</li>
+                <li onclick="selectModel('MG','MG GT')">MG GT</li>
+                <li onclick="selectModel('MG','MG NEW GT')">MG NEW GT</li>
+                <li onclick="selectModel('MG','MG RX 5')">MG RX 5</li>
+                <li onclick="selectModel('MG','MG RX 9')">MG RX 9</li>
+              </ul>
+            </div>
+            <div class="brand-model-card" data-brand="haval">
+              <button class="brand-model-header" onclick="toggleBrandModels(this)">
+                <img src="img/logo/Haval_2023_logo.svg" alt="" width="28" height="28">
+                <span>HAVAL</span>
+                <svg class="brand-model-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <ul class="brand-model-list">
+                <li onclick="selectModel('Haval','HAVAL H6')">HAVAL H6</li>
+                <li onclick="selectModel('Haval','HAVAL Jolion')">HAVAL Jolion</li>
+              </ul>
+            </div>
+            <div class="brand-model-card" data-brand="chery">
+              <button class="brand-model-header" onclick="toggleBrandModels(this)">
+                <img src="img/logo/Chery_logo.svg" alt="" width="28" height="28">
+                <span>CHERY</span>
+                <svg class="brand-model-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <ul class="brand-model-list">
+                <li onclick="selectModel('Chery','CHERY Tiggo 4')">CHERY Tiggo 4</li>
+                <li onclick="selectModel('Chery','CHERY Tiggo 7')">CHERY Tiggo 7</li>
+                <li onclick="selectModel('Chery','CHERY Tiggo 8')">CHERY Tiggo 8</li>
+                <li onclick="selectModel('Chery','CHERY QQ')">CHERY QQ</li>
+              </ul>
+            </div>
+            <div class="brand-model-card" data-brand="geely">
+              <button class="brand-model-header" onclick="toggleBrandModels(this)">
+                <img src="img/logo/Geely_Auto_2023.svg" alt="" width="28" height="28">
+                <span>GEELY</span>
+                <svg class="brand-model-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <ul class="brand-model-list">
+                <li onclick="selectModel('Geely','GEELY GC6')">GEELY GC6</li>
+                <li onclick="selectModel('Geely','GEELY Coolray')">GEELY Coolray</li>
+                <li onclick="selectModel('Geely','GEELY GX 3')">GEELY GX 3</li>
+              </ul>
+            </div>
+            <div class="brand-model-card" data-brand="suzuki">
+              <button class="brand-model-header" onclick="toggleBrandModels(this)">
+                <img src="img/logo/Suzuki_logo_2025.svg" alt="" width="28" height="28">
+                <span>SUZUKI</span>
+                <svg class="brand-model-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <ul class="brand-model-list">
+                <li onclick="selectModel('Suzuki','Suzuki Swift / Celerio')">Suzuki Swift / Celerio</li>
+              </ul>
+            </div>
+            <div class="brand-model-card" data-brand="mahindra">
+              <button class="brand-model-header" onclick="selectModel('Mahindra','Mahindra')">
+                <img src="img/logo/Mahindra-Logo.png" alt="" width="28" height="28">
+                <span>MAHINDRA</span>
+              </button>
+            </div>
+            <div class="brand-model-card" data-brand="dongfeng">
+              <button class="brand-model-header" onclick="selectModel('Dongfeng','Dongfeng')">
+                <img src="img/logo/Dongfeng_Motor_logo.svg" alt="" width="28" height="28">
+                <span>DONGFENG</span>
+              </button>
+            </div>
+            <div class="brand-model-card" data-brand="kia">
+              <button class="brand-model-header" onclick="toggleBrandModels(this)">
+                <img src="img/logo/KIA_logo3.svg" alt="" width="28" height="28">
+                <span>KIA</span>
+                <svg class="brand-model-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <ul class="brand-model-list">
+                <li onclick="selectModel('KIA','KIA Picanto')">KIA Picanto</li>
+                <li onclick="selectModel('KIA','KIA Rio')">KIA Rio</li>
+                <li onclick="selectModel('KIA','KIA Sportage')">KIA Sportage</li>
+              </ul>
+            </div>
+            <div class="brand-model-card" data-brand="hyundai">
+              <button class="brand-model-header" onclick="toggleBrandModels(this)">
+                <img src="img/logo/Hyundai_Motor_Company_logo.svg" alt="" width="28" height="28">
+                <span>HYUNDAI</span>
+                <svg class="brand-model-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <ul class="brand-model-list">
+                <li onclick="selectModel('Hyundai','HYUNDAI i10')">HYUNDAI i10</li>
+                <li onclick="selectModel('Hyundai','HYUNDAI i20')">HYUNDAI i20</li>
+              </ul>
+            </div>
           </div>
-          <!-- 
-          <h2 class="shop-brand-title reveal delay-1" id="shopBrandTitle">Pièces <span class="highlight">MG</span></h2> -->
 
           <!-- Product Search -->
           <div class="shop-search reveal delay-2" id="shopSearch">
@@ -670,7 +749,7 @@
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-              <input type="text" id="shopSearchInput" placeholder="Rechercher une pièce..." autocomplete="off"
+              <input type="text" id="shopSearchInput" placeholder="Rechercher un modèle..." autocomplete="off"
                 aria-label="Rechercher une pièce">
               <button class="shop-search-clear" id="shopSearchClear" aria-label="Effacer la recherche"
                 style="display:none;">
@@ -692,7 +771,20 @@
           </div>
 
           <!-- Category Grid -->
-          <div class="shop-categories-grid">
+          <!-- Selected Model Display -->
+          <div class="selected-model-display" id="selectedModelDisplay" style="display:none;">
+            <button class="product-detail-back" onclick="backToModelSelection()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              Retour aux modèles
+            </button>
+            <div class="selected-model-info">
+              <h2>Pièces pour <span class="highlight" id="selectedModelName"></span></h2>
+              <p id="selectedModelSubtitle" class="selected-model-subtitle">Sélectionnez la catégorie de pièce dont vous avez besoin</p>
+            </div>
+          </div>
+
+          <!-- Category Grid -->
+          <div class="shop-categories-grid" id="categoriesGrid" style="display:none;">
 
             <div class="shop-category-card reveal">
               <button class="shop-category-header" aria-expanded="false">
@@ -920,9 +1012,64 @@
 
   <script src="js/products.js"></script>
   <script>
-    // Brand tab switching
-    var _activeBrand = 'MG';
+    // Brand/Model Selection State
+    var _activeBrand = '';
+    var _activeModel = '';
     window.getActiveBrand = function () { return _activeBrand; };
+    window.getActiveModel = function () { return _activeModel; };
+
+    window.toggleBrandModels = function (btn) {
+      var card = btn.closest('.brand-model-card');
+      var isOpen = card.classList.contains('open');
+      document.querySelectorAll('.brand-model-card').forEach(function (c) { c.classList.remove('open'); });
+      if (!isOpen) card.classList.add('open');
+    };
+
+    window.selectModel = function (brand, model) {
+      _activeBrand = brand;
+      _activeModel = model;
+      document.getElementById('brandModelGrid').style.display = 'none';
+      document.getElementById('selectedModelDisplay').style.display = 'block';
+      document.getElementById('categoriesGrid').style.display = '';
+      document.getElementById('selectedModelName').textContent = model;
+      var si = document.getElementById('shopSearchInput');
+      if (si) { si.placeholder = 'Rechercher une pièce...'; si.value = ''; }
+      var sc = document.getElementById('shopSearchClear');
+      if (sc) sc.style.display = 'none';
+      var scount = document.getElementById('shopSearchCount');
+      if (scount) scount.style.display = 'none';
+      var nr = document.getElementById('shopNoResults');
+      if (nr) nr.style.display = 'none';
+      document.querySelectorAll('.shop-category-card').forEach(function (card) {
+        card.classList.remove('open'); card.style.display = '';
+        var h = card.querySelector('.shop-category-header');
+        if (h) h.setAttribute('aria-expanded', 'false');
+        card.querySelectorAll('.shop-category-items li').forEach(function (li) { li.style.display = ''; li.innerHTML = li.textContent; });
+      });
+      window.scrollTo({ top: document.getElementById('selectedModelDisplay').offsetTop - 120, behavior: 'smooth' });
+      _skipHashPush = true;
+      window.location.hash = '#products/' + encodeURIComponent(brand) + '/' + encodeURIComponent(model);
+    };
+
+    window.backToModelSelection = function () {
+      document.getElementById('brandModelGrid').style.display = '';
+      document.getElementById('selectedModelDisplay').style.display = 'none';
+      document.getElementById('categoriesGrid').style.display = 'none';
+      _activeBrand = ''; _activeModel = '';
+      var si = document.getElementById('shopSearchInput');
+      if (si) { si.placeholder = 'Rechercher un modèle...'; si.value = ''; }
+      var sc = document.getElementById('shopSearchClear');
+      if (sc) sc.style.display = 'none';
+      var scount = document.getElementById('shopSearchCount');
+      if (scount) scount.style.display = 'none';
+      var nr = document.getElementById('shopNoResults');
+      if (nr) nr.style.display = 'none';
+      document.querySelectorAll('.brand-model-card').forEach(function (c) { c.classList.remove('open'); c.style.display = ''; });
+      document.querySelectorAll('.brand-model-list li').forEach(function (li) { li.style.display = ''; });
+      window.scrollTo({ top: document.querySelector('.shop-section').offsetTop - 100, behavior: 'smooth' });
+      _skipHashPush = true;
+      window.location.hash = '#products';
+    };
     // document.querySelectorAll('.brand-tab').forEach(function (tab) {
     //   tab.addEventListener('click', function () {
     //     document.querySelectorAll('.brand-tab').forEach(function (t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
@@ -956,7 +1103,7 @@
     });
 
     // =============================================
-    // PRODUCT SEARCH
+    // CONTEXTUAL SEARCH (models or categories)
     // =============================================
     (function () {
       var searchInput = document.getElementById('shopSearchInput');
@@ -964,33 +1111,65 @@
       var searchCount = document.getElementById('shopSearchCount');
       var noResults = document.getElementById('shopNoResults');
       var noResultsQuery = document.getElementById('shopNoResultsQuery');
-      var categoriesGrid = document.querySelector('.shop-categories-grid');
       var debounceTimer = null;
 
       function normalizeText(str) {
-        return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/['']/g, "'");
+        return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\u2018\u2019]/g, "'");
       }
 
-      function performSearch() {
+      function searchModels() {
         var query = normalizeText(searchInput.value.trim());
         searchClear.style.display = query ? 'flex' : 'none';
+        var brandGrid = document.getElementById('brandModelGrid');
+        var cards = brandGrid.querySelectorAll('.brand-model-card');
+        if (!query) {
+          cards.forEach(function (card) {
+            card.style.display = ''; card.classList.remove('open');
+            card.querySelectorAll('.brand-model-list li').forEach(function (li) { li.style.display = ''; });
+          });
+          searchCount.style.display = 'none'; noResults.style.display = 'none'; return;
+        }
+        var totalMatches = 0;
+        cards.forEach(function (card) {
+          var brandSpan = card.querySelector('.brand-model-header span');
+          var brandName = brandSpan ? normalizeText(brandSpan.textContent) : '';
+          var items = card.querySelectorAll('.brand-model-list li');
+          var cardMatches = 0;
+          if (brandName.indexOf(query) !== -1) {
+            card.style.display = ''; card.classList.add('open');
+            items.forEach(function (li) { li.style.display = ''; });
+            cardMatches = Math.max(items.length, 1); totalMatches += cardMatches;
+          } else {
+            items.forEach(function (li) {
+              if (normalizeText(li.textContent).indexOf(query) !== -1) {
+                li.style.display = ''; cardMatches++; totalMatches++;
+              } else { li.style.display = 'none'; }
+            });
+            if (cardMatches > 0) { card.style.display = ''; card.classList.add('open'); }
+            else { card.style.display = 'none'; }
+          }
+        });
+        if (totalMatches > 0) {
+          noResults.style.display = 'none'; searchCount.style.display = 'block';
+          searchCount.textContent = totalMatches + ' modèle' + (totalMatches > 1 ? 's' : '') + ' trouvé' + (totalMatches > 1 ? 's' : '');
+        } else {
+          noResults.style.display = 'flex'; noResultsQuery.textContent = searchInput.value.trim();
+          searchCount.style.display = 'none';
+        }
+      }
 
+      function searchCategories() {
+        var query = normalizeText(searchInput.value.trim());
+        searchClear.style.display = query ? 'flex' : 'none';
+        var categoriesGrid = document.getElementById('categoriesGrid');
         var cards = categoriesGrid.querySelectorAll('.shop-category-card');
         if (!query) {
-          // Reset: show all cards and items
           cards.forEach(function (card) {
             card.style.display = '';
-            card.querySelectorAll('.shop-category-items li').forEach(function (li) {
-              li.style.display = '';
-              li.innerHTML = li.textContent; // remove highlights
-            });
+            card.querySelectorAll('.shop-category-items li').forEach(function (li) { li.style.display = ''; li.innerHTML = li.textContent; });
           });
-          categoriesGrid.style.display = '';
-          noResults.style.display = 'none';
-          searchCount.style.display = 'none';
-          return;
+          noResults.style.display = 'none'; searchCount.style.display = 'none'; return;
         }
-
         var totalMatches = 0;
         cards.forEach(function (card) {
           var items = card.querySelectorAll('.shop-category-items li');
@@ -998,44 +1177,33 @@
           items.forEach(function (li) {
             var text = normalizeText(li.textContent);
             if (text.indexOf(query) !== -1) {
-              li.style.display = '';
-              cardMatches++;
-              totalMatches++;
-              // Highlight match
+              li.style.display = ''; cardMatches++; totalMatches++;
               var raw = li.textContent;
               var idx = normalizeText(raw).indexOf(query);
               if (idx !== -1) {
-                var before = raw.substring(0, idx);
-                var match = raw.substring(idx, idx + query.length);
-                var after = raw.substring(idx + query.length);
-                li.innerHTML = before + '<mark>' + match + '</mark>' + after;
-                // Preserve onclick
+                li.innerHTML = raw.substring(0, idx) + '<mark>' + raw.substring(idx, idx + query.length) + '</mark>' + raw.substring(idx + query.length);
               }
-            } else {
-              li.style.display = 'none';
-            }
+            } else { li.style.display = 'none'; }
           });
           if (cardMatches > 0) {
-            card.style.display = '';
-            card.classList.add('open');
+            card.style.display = ''; card.classList.add('open');
             var hdr = card.querySelector('.shop-category-header');
             if (hdr) hdr.setAttribute('aria-expanded', 'true');
-          } else {
-            card.style.display = 'none';
-          }
+          } else { card.style.display = 'none'; }
         });
-
         if (totalMatches > 0) {
-          categoriesGrid.style.display = '';
-          noResults.style.display = 'none';
-          searchCount.style.display = 'block';
+          noResults.style.display = 'none'; searchCount.style.display = 'block';
           searchCount.textContent = totalMatches + ' résultat' + (totalMatches > 1 ? 's' : '') + ' trouvé' + (totalMatches > 1 ? 's' : '');
         } else {
-          categoriesGrid.style.display = 'none';
-          noResults.style.display = 'flex';
-          noResultsQuery.textContent = searchInput.value.trim();
+          noResults.style.display = 'flex'; noResultsQuery.textContent = searchInput.value.trim();
           searchCount.style.display = 'none';
         }
+      }
+
+      function performSearch() {
+        var brandGrid = document.getElementById('brandModelGrid');
+        if (brandGrid && brandGrid.style.display !== 'none') { searchModels(); }
+        else { searchCategories(); }
       }
 
       if (searchInput) {
@@ -1046,21 +1214,9 @@
       }
       if (searchClear) {
         searchClear.addEventListener('click', function () {
-          searchInput.value = '';
-          performSearch();
-          searchInput.focus();
+          searchInput.value = ''; performSearch(); searchInput.focus();
         });
       }
-
-      // Clear search on brand tab switch
-      // document.querySelectorAll('.brand-tab').forEach(function (tab) {
-      //   tab.addEventListener('click', function () {
-      //     if (searchInput && searchInput.value) {
-      //       searchInput.value = '';
-      //       performSearch();
-      //     }
-      //   });
-      // });
     })();
 
     // Product detail data is now loaded from js/products.js
@@ -1525,6 +1681,10 @@
       if (hash === '#products' || hash === '#nos-produits') return { page: 'products' };
       if (hash === '#contact' || hash === '#contact-section') return { page: 'contact' };
       if (hash.indexOf('#product/') === 0) return { page: 'products', productId: hash.substring(9) };
+      if (hash.indexOf('#products/') === 0) {
+        var parts = hash.substring(10).split('/');
+        return { page: 'products', brand: decodeURIComponent(parts[0] || ''), model: decodeURIComponent(parts[1] || '') };
+      }
       return { page: 'home' };
     }
 
@@ -1540,6 +1700,15 @@
           var detailSec = document.getElementById('productDetailSection');
           if (shopSec) shopSec.style.display = '';
           if (detailSec) detailSec.style.display = 'none';
+          // Reset to brand selection view
+          var bg = document.getElementById('brandModelGrid');
+          var cg = document.getElementById('categoriesGrid');
+          var md = document.getElementById('selectedModelDisplay');
+          if (bg) bg.style.display = '';
+          if (cg) cg.style.display = 'none';
+          if (md) md.style.display = 'none';
+          var si = document.getElementById('shopSearchInput');
+          if (si) { si.placeholder = 'Rechercher un modèle...'; si.value = ''; }
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -1570,6 +1739,8 @@
       showPage(route.page, true);
       if (route.productId) {
         showProductDetail(route.productId, true);
+      } else if (route.brand && route.model) {
+        selectModel(route.brand, route.model);
       }
     }
 
