@@ -11,6 +11,19 @@
   // =============================================
   var GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwawNFdQ6iuQV_kauycY5cr6nIQ7W4rOg7opLCM46QOxEDKt6FYh5ANJcQooyk_ar2i/exec';
 
+  // Brand-to-Models mapping (matches the brand-model grid in index.html)
+  var BRAND_MODELS = {
+    'MG':       ['MG 3','MG 5','MG 6','MG ZS','MG HS','MG GT','MG NEW GT','MG RX 5','MG RX 9'],
+    'KIA':      ['KIA Picanto','KIA Rio','KIA Sportage'],
+    'Hyundai':  ['HYUNDAI i10','HYUNDAI i20'],
+    'Geely':    ['GEELY GC6','GEELY Coolray','GEELY GX 3'],
+    'Chery':    ['CHERY Tiggo 4','CHERY Tiggo 7','CHERY Tiggo 8','CHERY QQ'],
+    'Haval':    ['HAVAL H6','HAVAL Jolion'],
+    'Dongfeng': ['Dongfeng'],
+    'Mahindra': ['Mahindra'],
+    'Suzuki':   ['Suzuki Swift / Celerio']
+  };
+
   // =============================================
   // 1. CART STATE MANAGEMENT
   // =============================================
@@ -34,6 +47,9 @@
     if (typeof productDetails !== 'undefined' && productDetails[productId] && productDetails[productId].images && productDetails[productId].images.length > 0) {
       image = productDetails[productId].images[0];
     }
+    // Capture the currently selected brand/model
+    var cartBrand = (typeof getActiveBrand === 'function') ? getActiveBrand() : '';
+    var cartModel = (typeof getActiveModel === 'function') ? getActiveModel() : '';
     var existing = null;
     for (var i = 0; i < cart.length; i++) {
       if (cart[i].id === productId) {
@@ -44,8 +60,10 @@
     if (existing) {
       existing.qty++;
       if (!existing.image && image) existing.image = image;
+      if (cartBrand) existing.brand = cartBrand;
+      if (cartModel) existing.model = cartModel;
     } else {
-      cart.push({ id: productId, title: title, category: category, qty: 1, image: image });
+      cart.push({ id: productId, title: title, category: category, qty: 1, image: image, brand: cartBrand, model: cartModel });
     }
     saveCart();
 
@@ -615,7 +633,21 @@
     var form = document.getElementById('umForm');
     if (form) form.reset();
 
+    // Resolve model from active state or from cart items
+    var model = (typeof getActiveModel === 'function') ? getActiveModel() : '';
+    // If opening for cart-based types and no active model, try to get from first cart item
+    if (!brand || !model) {
+      var cartItems = JSON.parse(localStorage.getItem('aapt_cart') || '[]');
+      if (cartItems.length > 0 && cartItems[0].brand) {
+        if (!brand) brand = cartItems[0].brand;
+        if (!model) model = cartItems[0].model || '';
+      }
+    }
+
     var brandSelect = document.getElementById('umBrand');
+    var modelSelect = document.getElementById('umModel');
+    var modelGroup = document.getElementById('umModelGroup');
+
     if (brandSelect && brand) {
       for (var i = 0; i < brandSelect.options.length; i++) {
         if (brandSelect.options[i].value.toLowerCase() === brand.toLowerCase()) {
@@ -624,6 +656,9 @@
         }
       }
     }
+
+    // Populate and auto-select model
+    populateModelSelect(brandSelect ? brandSelect.value : '', model);
 
     umModal.classList.add('active');
     umModal.setAttribute('aria-hidden', 'false');
@@ -655,6 +690,11 @@
 
   function onSubmitSuccess(umForm, submitBtn, originalText) {
     umForm.reset();
+    // Reset model dropdown state
+    var mg = document.getElementById('umModelGroup');
+    var ms = document.getElementById('umModel');
+    if (mg) mg.style.display = 'none';
+    if (ms) { ms.removeAttribute('required'); ms.innerHTML = '<option value="">— Sélectionnez un modèle —</option>'; }
     submitBtn.innerHTML = originalText;
     submitBtn.disabled = false;
     submitBtn.style.opacity = '';
@@ -707,6 +747,60 @@
         })
         .catch(function() { showToastGlobal('\u274c Erreur de connexion. Veuillez r\u00e9essayer plus tard.', 'error'); })
         .finally(function() { submitBtn.innerHTML = originalText; submitBtn.disabled = false; submitBtn.style.opacity = ''; });
+    });
+  }
+
+  // =============================================
+  // BRAND → MODEL DYNAMIC POPULATION
+  // =============================================
+  function populateModelSelect(brandValue, preselectedModel) {
+    var modelSelect = document.getElementById('umModel');
+    var modelGroup = document.getElementById('umModelGroup');
+    if (!modelSelect || !modelGroup) return;
+
+    // Clear existing options
+    modelSelect.innerHTML = '<option value="">— Sélectionnez un modèle —</option>';
+
+    var models = BRAND_MODELS[brandValue];
+    if (!brandValue || brandValue === 'Autre' || !models || models.length === 0) {
+      modelGroup.style.display = 'none';
+      modelSelect.removeAttribute('required');
+      modelSelect.value = '';
+      return;
+    }
+
+    // Populate options
+    models.forEach(function(m) {
+      var opt = document.createElement('option');
+      opt.value = m;
+      opt.textContent = m;
+      modelSelect.appendChild(opt);
+    });
+
+    modelGroup.style.display = '';
+    modelSelect.setAttribute('required', 'required');
+
+    // Auto-select if only one model
+    if (models.length === 1) {
+      modelSelect.value = models[0];
+    }
+
+    // Pre-select model if provided
+    if (preselectedModel) {
+      for (var i = 0; i < modelSelect.options.length; i++) {
+        if (modelSelect.options[i].value === preselectedModel) {
+          modelSelect.value = preselectedModel;
+          break;
+        }
+      }
+    }
+  }
+
+  // Listen for brand changes to update model dropdown
+  var brandSelectEl = document.getElementById('umBrand');
+  if (brandSelectEl) {
+    brandSelectEl.addEventListener('change', function() {
+      populateModelSelect(this.value, '');
     });
   }
 
