@@ -19,8 +19,8 @@
     'Geely':    ['GEELY GC6','GEELY Coolray','GEELY GX 3'],
     'Chery':    ['CHERY Tiggo 4','CHERY Tiggo 7','CHERY Tiggo 8','CHERY QQ'],
     'Haval':    ['HAVAL H6','HAVAL Jolion'],
-    'Dongfeng': ['Dongfeng'],
-    'Mahindra': ['Mahindra'],
+    'Dongfeng': ['S50'],
+    'Mahindra': ['KUV 100', 'KUV 300'],
     'Suzuki':   ['Suzuki Swift / Celerio']
   };
 
