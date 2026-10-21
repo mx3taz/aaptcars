@@ -26,7 +26,7 @@
 // ─────────────── CONFIGURATION ───────────────
 // ID de votre Google Sheet : c'est la partie entre /d/ et /edit dans l'URL
 // https://docs.google.com/spreadsheets/d/  <<< ID >>>  /edit
-var SHEET_ID = '11XE-KMXAEmg2bWJiOoPTiAjqHUxNs7ICflKBUIk3p5w';
+var SHEET_ID = '1GWD3-UtgYj8sOKvkhZ3UcgclC4joPaEwB7PP5038ZS8';
 
 // Nom de l'onglet où écrire (créé automatiquement s'il n'existe pas)
 var SHEET_NAME = 'Commandes';

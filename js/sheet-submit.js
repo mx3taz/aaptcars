@@ -11,7 +11,7 @@
   'use strict';
 
   // ══════════ 1) COLLEZ ICI L'URL DE VOTRE WEB APP (elle se termine par /exec) ══════════
-  var SCRIPT_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxc1ZCaYjb13Mu79J6jKWwhrkOpXCVrUaGAqpzTaxWWScXwuFPqWvuWSRTZVahA_fsd/exec';
 
   // Vider automatiquement le panier après une commande réussie ?
   var CLEAR_CART_AFTER_ORDER = true;
