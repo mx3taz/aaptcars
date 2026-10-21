@@ -12,7 +12,7 @@
     // CONFIG
     // =============================================
     // IMPORTANT: Shared Google Apps Script Web App URL
-    window.AAPT_GOOGLE_SCRIPT_URL = window.AAPT_GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbxc1ZCaYjb13Mu79J6jKWwhrkOpXCVrUaGAqpzTaxWWScXwuFPqWvuWSRTZVahA_fsd/exec';
+    window.AAPT_GOOGLE_SCRIPT_URL = window.AAPT_GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbwawNFdQ6iuQV_kauycY5cr6nIQ7W4rOg7opLCM46QOxEDKt6FYh5ANJcQooyk_ar2i/exec';
     const GOOGLE_SCRIPT_URL = window.AAPT_GOOGLE_SCRIPT_URL;
 
     // =============================================
@@ -293,7 +293,7 @@
         // Add timestamp
         formData.append('timestamp', new Date().toLocaleString('fr-FR'));
 
-        if (GOOGLE_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxc1ZCaYjb13Mu79J6jKWwhrkOpXCVrUaGAqpzTaxWWScXwuFPqWvuWSRTZVahA_fsd/exec') {
+        if (GOOGLE_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
             // Demo mode: simulate success
             setTimeout(function () {
                 showToast('✅ Votre demande a été envoyée avec succès ! Nous vous contacterons bientôt.', 'success');

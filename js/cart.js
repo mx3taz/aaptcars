@@ -595,7 +595,8 @@
       var displayProduct = productTitle || '';
       if (categoryName) displayProduct += ' (' + categoryName + ')';
       if (cartSummary) {
-        cartSummary.innerHTML = '<strong>Commande — 1 article :</strong><ul><li>' + displayProduct + '</li></ul>';
+        var catSuffix = categoryName ? ' <span style="color:var(--clr-text-muted)">(' + categoryName + ')</span>' : '';
+        cartSummary.innerHTML = '<strong>Commande — 1 article(s) :</strong><ul><li>' + (productTitle || '') + ' × 1' + catSuffix + '</li></ul>';
         cartSummary.style.display = 'block';
       }
       if (prodEl) prodEl.style.display = 'none';
