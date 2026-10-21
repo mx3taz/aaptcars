@@ -7,9 +7,10 @@
   'use strict';
 
   // =============================================
-  // GOOGLE SCRIPT URL (same as in main.js)
+  // GOOGLE SCRIPT URL (shared configuration)
   // =============================================
-  var GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwawNFdQ6iuQV_kauycY5cr6nIQ7W4rOg7opLCM46QOxEDKt6FYh5ANJcQooyk_ar2i/exec';
+  window.AAPT_GOOGLE_SCRIPT_URL = window.AAPT_GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbwawNFdQ6iuQV_kauycY5cr6nIQ7W4rOg7opLCM46QOxEDKt6FYh5ANJcQooyk_ar2i/exec';
+  var GOOGLE_SCRIPT_URL = window.AAPT_GOOGLE_SCRIPT_URL;
 
   // Brand-to-Models mapping (matches the brand-model grid in index.html)
   var BRAND_MODELS = {
@@ -233,7 +234,7 @@
   window.submitCartDevis = function () {
     if (cart.length === 0) return;
     openCartSidebar(false);
-    openUnifiedModal('devis-panier');
+    openUnifiedModal('panier');
   };
 
   // =============================================
@@ -550,7 +551,7 @@
 
   function openUnifiedModal(type, productId, productTitle, categoryName) {
     if (!umModal) return;
-    umCurrentType = type;
+    umCurrentType = type || 'commande';
     resetModalViews();
 
     var titleEl = document.getElementById('umTitle');
@@ -561,81 +562,58 @@
     var adresseGroup = document.getElementById('umAdresseGroup');
     var adresseInput = document.getElementById('umAdresse');
 
-    hiddenType.value = type;
-    cartSummary.style.display = 'none';
-    cartSummary.innerHTML = '';
+    if (hiddenType) hiddenType.value = umCurrentType;
 
-    // Resolve brand from active tab
-    var brand = (typeof getActiveBrand === 'function') ? getActiveBrand() : '';
+    // Single unified title for purchase / command everywhere
+    if (titleEl) titleEl.textContent = 'Commander mes Pièces';
 
-    // Show/hide Adresse field: only for panier (buying)
-    var isPurchase = (type === 'panier');
-    if (adresseGroup) adresseGroup.style.display = isPurchase ? '' : 'none';
-    if (adresseInput) {
-      if (isPurchase) {
-        adresseInput.setAttribute('required', 'required');
-      } else {
-        adresseInput.removeAttribute('required');
-        adresseInput.value = '';
-      }
-    }
+    // Address is ALWAYS visible and required on this unified form
+    if (adresseGroup) adresseGroup.style.display = '';
+    if (adresseInput) adresseInput.setAttribute('required', 'required');
 
-    // Set title and product info based on type
-    if (type === 'devis') {
-      titleEl.textContent = 'Demander un Devis';
-      var displayProduct = productTitle || '';
-      if (categoryName) displayProduct += ' (' + categoryName + ')';
-      prodEl.textContent = displayProduct;
-      umCurrentProduct = displayProduct;
-      hiddenProduct.value = displayProduct;
-    } else if (type === 'devis-panier') {
-      titleEl.textContent = 'Demander un Devis';
-      prodEl.textContent = '';
+    // Display consistent order summary box
+    if (type === 'panier' || type === 'devis-panier') {
       var items = JSON.parse(localStorage.getItem('aapt_cart') || '[]');
       if (items.length === 0) return;
-      var totalQty = items.reduce(function(s,i){return s+i.qty;},0);
-      var listHtml = '<strong>Devis \u2014 ' + totalQty + ' article(s) :</strong><ul>';
+      var totalQty = items.reduce(function(s, i) { return s + i.qty; }, 0);
+      var listHtml = '<strong>Commande — ' + totalQty + ' article(s) :</strong><ul>';
       var prodParts = [];
       items.forEach(function(item) {
-        listHtml += '<li>' + item.title + ' \u00d7 ' + item.qty + ' <span style="color:var(--clr-text-muted)">(' + item.category + ')</span></li>';
+        listHtml += '<li>' + item.title + ' × ' + item.qty + ' <span style="color:var(--clr-text-muted)">(' + item.category + ')</span></li>';
         prodParts.push(item.title + ' (x' + item.qty + ')');
       });
       listHtml += '</ul>';
-      cartSummary.innerHTML = listHtml;
-      cartSummary.style.display = 'block';
-      umCurrentProduct = 'DEVIS-PANIER: ' + prodParts.join(' | ');
-      hiddenProduct.value = umCurrentProduct;
-    } else if (type === 'panier') {
-      titleEl.textContent = 'Commander mes Pi\u00e8ces';
-      prodEl.textContent = '';
-      var items2 = JSON.parse(localStorage.getItem('aapt_cart') || '[]');
-      if (items2.length === 0) return;
-      var totalQty2 = items2.reduce(function(s,i){return s+i.qty;},0);
-      var listHtml2 = '<strong>Commande \u2014 ' + totalQty2 + ' article(s) :</strong><ul>';
-      var prodParts2 = [];
-      items2.forEach(function(item) {
-        listHtml2 += '<li>' + item.title + ' \u00d7 ' + item.qty + ' <span style="color:var(--clr-text-muted)">(' + item.category + ')</span></li>';
-        prodParts2.push(item.title + ' (x' + item.qty + ')');
-      });
-      listHtml2 += '</ul>';
-      cartSummary.innerHTML = listHtml2;
-      cartSummary.style.display = 'block';
-      umCurrentProduct = 'PANIER: ' + prodParts2.join(' | ');
-      hiddenProduct.value = umCurrentProduct;
-    } else if (type === 'livraison') {
-      titleEl.textContent = 'Demande de Livraison';
-      prodEl.textContent = productTitle || '';
-      umCurrentProduct = 'LIVRAISON: ' + (productTitle || '');
-      hiddenProduct.value = umCurrentProduct;
+      if (cartSummary) {
+        cartSummary.innerHTML = listHtml;
+        cartSummary.style.display = 'block';
+      }
+      if (prodEl) prodEl.style.display = 'none';
+      umCurrentProduct = 'PANIER: ' + prodParts.join(' | ');
+      if (hiddenProduct) hiddenProduct.value = umCurrentProduct;
+    } else {
+      // Direct single product order from product page
+      var displayProduct = productTitle || '';
+      if (categoryName) displayProduct += ' (' + categoryName + ')';
+      if (cartSummary) {
+        cartSummary.innerHTML = '<strong>Commande — 1 article :</strong><ul><li>' + displayProduct + '</li></ul>';
+        cartSummary.style.display = 'block';
+      }
+      if (prodEl) prodEl.style.display = 'none';
+      umCurrentProduct = displayProduct;
+      if (hiddenProduct) hiddenProduct.value = displayProduct;
     }
 
     // Reset form then auto-fill brand dropdown
     var form = document.getElementById('umForm');
     if (form) form.reset();
 
-    // Resolve model from active state or from cart items
+    // Ensure address remains required after reset
+    if (adresseInput) adresseInput.setAttribute('required', 'required');
+
+    // Resolve brand from active state or from cart items
+    var brand = (typeof getActiveBrand === 'function') ? getActiveBrand() : '';
     var model = (typeof getActiveModel === 'function') ? getActiveModel() : '';
-    // If opening for cart-based types and no active model, try to get from first cart item
+    // If opening from cart and no active model, try to get from first cart item
     if (!brand || !model) {
       var cartItems = JSON.parse(localStorage.getItem('aapt_cart') || '[]');
       if (cartItems.length > 0 && cartItems[0].brand) {
@@ -645,9 +623,6 @@
     }
 
     var brandSelect = document.getElementById('umBrand');
-    var modelSelect = document.getElementById('umModel');
-    var modelGroup = document.getElementById('umModelGroup');
-
     if (brandSelect && brand) {
       for (var i = 0; i < brandSelect.options.length; i++) {
         if (brandSelect.options[i].value.toLowerCase() === brand.toLowerCase()) {
@@ -698,7 +673,11 @@
     submitBtn.innerHTML = originalText;
     submitBtn.disabled = false;
     submitBtn.style.opacity = '';
-    if (umCurrentType === 'panier') { cart = []; saveCart(); }
+    // Clear cart if this was a cart order
+    if (umCurrentType === 'panier' || umCurrentType === 'devis-panier') {
+      cart = [];
+      saveCart();
+    }
     showModalSuccess();
     window.showDeliveryBanner();
   }
@@ -718,8 +697,15 @@
       });
       if (!isValid) { showToastGlobal('Veuillez remplir tous les champs obligatoires.', 'error'); return; }
 
-      var typeLabels = { devis: 'Devis', panier: 'Commande', livraison: 'Livraison', 'devis-panier': 'Devis Panier' };
-      var sourceValue = typeLabels[umCurrentType] || 'Devis';
+      var typeLabels = {
+        panier: 'Commande Panier',
+        'devis-panier': 'Commande Panier',
+        produit: 'Commande Directe',
+        commande: 'Commande Directe',
+        devis: 'Commande Directe',
+        livraison: 'Demande de Livraison'
+      };
+      var sourceValue = typeLabels[umCurrentType] || 'Commande';
 
       var originalText = submitBtn.innerHTML;
       submitBtn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:0.5rem;">Envoi en cours...</span>';
@@ -729,7 +715,7 @@
       var formData = new FormData(umForm);
       formData.append('timestamp', new Date().toLocaleString('fr-FR'));
       formData.append('source', sourceValue);
-      formData.append('product', document.getElementById('umHiddenProduct').value);
+      formData.append('product', document.getElementById('umHiddenProduct') ? document.getElementById('umHiddenProduct').value : umCurrentProduct);
 
       if (GOOGLE_SCRIPT_URL.indexOf('YOUR_GOOGLE') !== -1) {
         setTimeout(function() { onSubmitSuccess(umForm, submitBtn, originalText); }, 1500);

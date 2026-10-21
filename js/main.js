@@ -6,13 +6,14 @@
  */
 
 (function () {
-    'use strict';
+        'use strict';
 
     // =============================================
     // CONFIG
     // =============================================
-    // IMPORTANT: Replace this URL with your deployed Google Apps Script Web App URL
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuKhT8QvK1wxsZqmxqz5Xz93Qc75EwFkhV6zORShHJ6S4tHdz2r5IcshKCVBcQVWBh/exec';
+    // IMPORTANT: Shared Google Apps Script Web App URL
+    window.AAPT_GOOGLE_SCRIPT_URL = window.AAPT_GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbwawNFdQ6iuQV_kauycY5cr6nIQ7W4rOg7opLCM46QOxEDKt6FYh5ANJcQooyk_ar2i/exec';
+    const GOOGLE_SCRIPT_URL = window.AAPT_GOOGLE_SCRIPT_URL;
 
     // =============================================
     // DOM ELEMENTS

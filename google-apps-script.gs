@@ -1,57 +1,112 @@
 /**
  * Google Apps Script — AAPT Le Coin MG
- * Receives form submissions and writes them to a Google Sheet
+ * Formulaire Unique de Commande & Devis → Google Sheets
  *
- * SETUP INSTRUCTIONS:
- * 1. Go to https://sheets.google.com and create a new spreadsheet
- * 2. Name it "AAPT - Demandes Clients"
- * 3. In Row 1, add these headers:
- *    Timestamp | Nom | Téléphone | Email | Produit | Message | Source | Marque | Adresse
- * 4. Go to Extensions → Apps Script
- * 5. Delete any existing code and paste this entire file
- * 6. Click Deploy → New deployment
- * 7. Select type: Web app
- * 8. Set "Execute as" → Me
- * 9. Set "Who has access" → Anyone
- * 10. Click Deploy and copy the URL
- * 11. Paste the URL into js/main.js → GOOGLE_SCRIPT_URL constant
+ * ═══════════════════════════════════════════════════
+ *  CONFIGURATION DU GOOGLE SHEET
+ * ═══════════════════════════════════════════════════
+ *
+ *  Colonnes enregistrées dans la feuille (11 colonnes) :
+ *  1. Date / Heure
+ *  2. Nom Complet
+ *  3. Téléphone
+ *  4. Email
+ *  5. Marque du Véhicule
+ *  6. Modèle du Véhicule
+ *  7. N° Carte Grise
+ *  8. Adresse de Livraison
+ *  9. Produit(s) Commandé(s)
+ *  10. Message
+ *  11. Source (Commande Panier / Commande Directe / Contact)
+ *
+ *  NOTE : Si votre feuille est vide, la première ligne avec les titres
+ *  ci-dessus sera créée automatiquement lors de la première commande !
  */
+
+// ⚠️ Identifiant de votre Google Sheet
+var SHEET_ID = '11XE-KMXAEmg2bWJiOoPTiAjqHUxNs7ICflKBUIk3p5w';
+
+function getSheet() {
+  if (SHEET_ID && SHEET_ID !== 'YOUR_SPREADSHEET_ID_HERE') {
+    return SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (ss) return ss.getActiveSheet();
+  throw new Error('SHEET_ID non configuré. Ouvrez google-apps-script.gs et vérifiez votre identifiant Google Sheet.');
+}
 
 function doPost(e) {
   try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var sheet = getSheet();
 
-    // Parse form data
-    var timestamp = e.parameter.timestamp || new Date().toLocaleString('fr-FR');
-    var name = e.parameter.name || '';
-    var phone = e.parameter.phone || '';
-    var email = e.parameter.email || '';
-    var product = e.parameter.product || '';
-    var message = e.parameter.message || '';
-    var source = e.parameter.source || '';
-    var brand = e.parameter.brand || '';
-    var adresse = e.parameter.adresse || '';
+    // Récupération des données (FormData ou JSON)
+    var p = (e && e.parameter) ? e.parameter : {};
+    if (e && e.postData && e.postData.contents) {
+      try {
+        var parsed = JSON.parse(e.postData.contents);
+        for (var k in parsed) {
+          if (!p[k]) p[k] = parsed[k];
+        }
+      } catch (err) {}
+    }
 
-    // Append row to spreadsheet
+    var timestamp  = p.timestamp  || new Date().toLocaleString('fr-FR');
+    var name       = p.name       || '';
+    var phone      = p.phone      || '';
+    var email      = p.email      || '';
+    var brand      = p.brand      || '';
+    var model      = p.model      || '';
+    var carteGrise = p.carteGrise || '';
+    var adresse    = p.adresse    || '';
+    var product    = p.product    || '';
+    var message    = p.message    || '';
+    var source     = p.source     || 'Commande';
+
+    // Si la feuille est vierge, créer automatiquement la ligne d'en-tête stylisée
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        'Date / Heure',
+        'Nom Complet',
+        'Téléphone',
+        'Email',
+        'Marque',
+        'Modèle',
+        'N° Carte Grise',
+        'Adresse de Livraison',
+        'Produit(s) Commandé(s)',
+        'Message',
+        'Source'
+      ]);
+      try {
+        var headerRange = sheet.getRange(1, 1, 1, 11);
+        headerRange.setFontWeight('bold');
+        headerRange.setBackground('#E30613');
+        headerRange.setFontColor('#FFFFFF');
+        sheet.setFrozenRows(1);
+      } catch (hErr) {}
+    }
+
+    // Ajout de la commande dans la feuille
     sheet.appendRow([
       timestamp,
       name,
       phone,
       email,
+      brand,
+      model,
+      carteGrise,
+      adresse,
       product,
       message,
-      source,
-      brand,
-      adresse
+      source
     ]);
 
-    // Return success response
+    // Réponse de succès
     return ContentService
-      .createTextOutput(JSON.stringify({ result: 'success', message: 'Data saved successfully' }))
+      .createTextOutput(JSON.stringify({ result: 'success', message: 'Commande enregistrée avec succès' }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
-    // Return error response
     return ContentService
       .createTextOutput(JSON.stringify({ result: 'error', message: error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -60,24 +115,6 @@ function doPost(e) {
 
 function doGet(e) {
   return ContentService
-    .createTextOutput(JSON.stringify({ result: 'success', message: 'AAPT Le Coin MG API is running' }))
+    .createTextOutput(JSON.stringify({ result: 'success', message: 'API AAPT Le Coin MG connectée et opérationnelle' }))
     .setMimeType(ContentService.MimeType.JSON);
 }
-
-/**
- * Optional: Send email notification when a new submission arrives
- * Uncomment and set your email address to receive notifications
- */
-/*
-function sendNotification(name, phone, product) {
-  var email = 'YOUR_EMAIL@gmail.com';
-  var subject = 'Nouvelle demande AAPT - ' + name;
-  var body = 'Nouvelle demande reçue:\n\n' +
-             'Nom: ' + name + '\n' +
-             'Téléphone: ' + phone + '\n' +
-             'Produit: ' + product + '\n\n' +
-             'Consultez votre Google Sheet pour plus de détails.';
-
-  MailApp.sendEmail(email, subject, body);
-}
-*/
