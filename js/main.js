@@ -12,7 +12,7 @@
     // CONFIG
     // =============================================
     // IMPORTANT: Shared Google Apps Script Web App URL
-    window.AAPT_GOOGLE_SCRIPT_URL = window.AAPT_GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbwawNFdQ6iuQV_kauycY5cr6nIQ7W4rOg7opLCM46QOxEDKt6FYh5ANJcQooyk_ar2i/exec';
+    window.AAPT_GOOGLE_SCRIPT_URL = window.AAPT_GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbxc1ZCaYjb13Mu79J6jKWwhrkOpXCVrUaGAqpzTaxWWScXwuFPqWvuWSRTZVahA_fsd/exec';
     const GOOGLE_SCRIPT_URL = window.AAPT_GOOGLE_SCRIPT_URL;
 
     // =============================================
