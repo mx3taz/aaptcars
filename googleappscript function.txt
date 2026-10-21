@@ -1,0 +1,23 @@
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({ result: 'success', message: 'AAPT Le Coin MG API is running' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Optional: Send email notification when a new submission arrives
+ * Uncomment and set your email address to receive notifications
+ */
+/*
+function sendNotification(name, phone, product) {
+  var email = 'YOUR_EMAIL@gmail.com';
+  var subject = 'Nouvelle demande AAPT - ' + name;
+  var body = 'Nouvelle demande reçue:\n\n' +
+             'Nom: ' + name + '\n' +
+             'Téléphone: ' + phone + '\n' +
+             'Produit: ' + product + '\n\n' +
+             'Consultez votre Google Sheet pour plus de détails.';
+
+  MailApp.sendEmail(email, subject, body);
+}
+*/

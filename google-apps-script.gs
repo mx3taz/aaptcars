@@ -6,7 +6,7 @@
  * 1. Go to https://sheets.google.com and create a new spreadsheet
  * 2. Name it "AAPT - Demandes Clients"
  * 3. In Row 1, add these headers:
- *    Timestamp | Nom | Téléphone | Produit | Message | Source | Marque | Adresse
+ *    Timestamp | Nom | Téléphone | Email | Produit | Message | Source | Marque | Adresse
  * 4. Go to Extensions → Apps Script
  * 5. Delete any existing code and paste this entire file
  * 6. Click Deploy → New deployment
@@ -25,6 +25,7 @@ function doPost(e) {
     var timestamp = e.parameter.timestamp || new Date().toLocaleString('fr-FR');
     var name = e.parameter.name || '';
     var phone = e.parameter.phone || '';
+    var email = e.parameter.email || '';
     var product = e.parameter.product || '';
     var message = e.parameter.message || '';
     var source = e.parameter.source || '';
@@ -36,6 +37,7 @@ function doPost(e) {
       timestamp,
       name,
       phone,
+      email,
       product,
       message,
       source,
