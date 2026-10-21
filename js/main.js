@@ -293,7 +293,7 @@
         // Add timestamp
         formData.append('timestamp', new Date().toLocaleString('fr-FR'));
 
-        if (GOOGLE_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+        if (GOOGLE_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxc1ZCaYjb13Mu79J6jKWwhrkOpXCVrUaGAqpzTaxWWScXwuFPqWvuWSRTZVahA_fsd/exec') {
             // Demo mode: simulate success
             setTimeout(function () {
                 showToast('✅ Votre demande a été envoyée avec succès ! Nous vous contacterons bientôt.', 'success');
